@@ -11,17 +11,17 @@
 namespace rdmapp {
 namespace detail {
 
-static inline uint16_t ntoh(uint16_t const &value) { return ::be16toh(value); }
+static inline uint16_t ntoh(uint16_t const &value) { return be16toh(value); }
 
-static inline uint32_t ntoh(uint32_t const &value) { return ::be32toh(value); }
+static inline uint32_t ntoh(uint32_t const &value) { return be32toh(value); }
 
-static inline uint64_t ntoh(uint64_t const &value) { return ::be64toh(value); }
+static inline uint64_t ntoh(uint64_t const &value) { return be64toh(value); }
 
-static inline uint16_t hton(uint16_t const &value) { return ::htobe16(value); }
+static inline uint16_t hton(uint16_t const &value) { return htobe16(value); }
 
-static inline uint32_t hton(uint32_t const &value) { return ::htobe32(value); }
+static inline uint32_t hton(uint32_t const &value) { return htobe32(value); }
 
-static inline uint64_t hton(uint64_t const &value) { return ::htobe64(value); }
+static inline uint64_t hton(uint64_t const &value) { return htobe64(value); }
 
 template <class T, class It>
 typename std::enable_if<std::is_integral<T>::value>::type

@@ -13,7 +13,7 @@ namespace rdmapp {
 
 enum class LogLevel {
   TRACE,
-  DEBUG,
+  DEBUG_MODE,
   INFO,
   WARN,
   ERROR,
@@ -22,7 +22,7 @@ enum class LogLevel {
 }
 
 constexpr static inline rdmapp::LogLevel rdmapp_log_level =
-    rdmapp::LogLevel::DEBUG;
+    rdmapp::LogLevel::DEBUG_MODE;
 
 #define RDMAPP_LOG_TRACE(msg, ...)                                             \
   do {                                                                         \
@@ -34,7 +34,7 @@ constexpr static inline rdmapp::LogLevel rdmapp_log_level =
 
 #define RDMAPP_LOG_DEBUG(msg, ...)                                             \
   do {                                                                         \
-    if (rdmapp_log_level > rdmapp::LogLevel::DEBUG)                            \
+    if (rdmapp_log_level > rdmapp::LogLevel::DEBUG_MODE)                            \
       break;                                                                   \
     printf("[DEBUG] [%s:%d] " msg "\n", __RDMAPP_FILENAME__,                   \
            __LINE__ __VA_OPT__(, ) __VA_ARGS__);                               \

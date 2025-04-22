@@ -1,6 +1,7 @@
-cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
-project(rdmapp)
+# cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
+# project(rdmapp)
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(Threads REQUIRED)
@@ -13,11 +14,7 @@ endif ()
 string(LENGTH "${CMAKE_SOURCE_DIR}/" SOURCE_PATH_LENGTH)
 add_definitions("-DSOURCE_PATH_LENGTH=${SOURCE_PATH_LENGTH}")
 
-if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-  option(RDMAPP_BUILD_EXAMPLES "Build examples" ON)
-else()
-  option(RDMAPP_BUILD_EXAMPLES "Build examples" OFF)
-endif()
+option(RDMAPP_BUILD_EXAMPLES "Build examples" ON)
 option(RDMAPP_BUILD_DOCS "Build docs" OFF)
 option(RDMAPP_ASAN "Build with AddressSanitizer" OFF)
 
