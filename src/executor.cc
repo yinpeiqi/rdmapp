@@ -32,7 +32,6 @@ void executor::process_wc(struct ibv_wc const &wc) { //work_queue_.push(wc); }
   *wc_ptr = wc;
   std::coroutine_handle<> h = std::coroutine_handle<>::from_address(
       *reinterpret_cast<void **>(wc_ptr + 1));
-  std::cout << "start process_wc \n";
   auto st = std::chrono::high_resolution_clock::now();
   h.resume();
   auto et = std::chrono::high_resolution_clock::now();
