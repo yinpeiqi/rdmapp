@@ -8,6 +8,8 @@
 #include <optional>
 #include <utility>
 #include <vector>
+#include <chrono>
+#include <iostream>
 
 #include <infiniband/verbs.h>
 
@@ -78,6 +80,8 @@ class qp : public noncopyable, public std::enable_shared_from_this<qp> {
 
 public:
   class send_awaitable {
+    struct ibv_wc wc_;
+    void *coroutine_addr_;
     std::shared_ptr<qp> qp_;
     std::shared_ptr<local_mr> local_mr_;
     std::exception_ptr exception_;
@@ -85,10 +89,10 @@ public:
     uint64_t compare_add_;
     uint64_t swap_;
     uint32_t imm_;
-    struct ibv_wc wc_;
+    size_t length_ = -1;
     const enum ibv_wr_opcode opcode_;
 
-  public:
+   public:
     send_awaitable(std::shared_ptr<qp> qp, void *buffer, size_t length,
                    enum ibv_wr_opcode opcode);
     send_awaitable(std::shared_ptr<qp> qp, void *buffer, size_t length,
@@ -122,14 +126,33 @@ public:
     constexpr bool is_atomic() const;
   };
 
+  class light_send_awaitable {
+    struct ibv_wc wc_;
+    void *coroutine_addr_;
+    std::shared_ptr<qp> qp_;
+    std::shared_ptr<local_mr> local_mr_;
+    std::shared_ptr<remote_mr> remote_mr_;
+    uint32_t imm_;
+    size_t length_ = -1;
+    std::chrono::time_point<std::chrono::high_resolution_clock> st_;
+
+   public:
+    light_send_awaitable(std::shared_ptr<qp> qp, size_t length, std::shared_ptr<local_mr> local_mr,
+                   std::shared_ptr<remote_mr> remote_mr, uint32_t imm);
+    bool await_ready() const noexcept;
+    bool await_suspend(std::coroutine_handle<> h) noexcept;
+    uint32_t await_resume() const;
+  };
+
   class recv_awaitable {
+    struct ibv_wc wc_;
+    void *coroutine_addr_;
     std::shared_ptr<qp> qp_;
     std::shared_ptr<local_mr> local_mr_;
     std::exception_ptr exception_;
-    struct ibv_wc wc_;
     enum ibv_wr_opcode opcode_;
 
-  public:
+   public:
     recv_awaitable(std::shared_ptr<qp> qp, std::shared_ptr<local_mr> local_mr);
     recv_awaitable(std::shared_ptr<qp> qp, void *buffer, size_t length);
     bool await_ready() const noexcept;
@@ -349,6 +372,10 @@ public:
   [[nodiscard]] send_awaitable
   write_with_imm(remote_mr const &remote_mr, std::shared_ptr<local_mr> local_mr,
                  uint32_t imm);
+
+  [[nodiscard]] light_send_awaitable
+  write_with_imm(std::shared_ptr<remote_mr> remote_mr, std::shared_ptr<local_mr> local_mr,
+                size_t length, uint32_t imm);
 
   /**
    * @brief This function reads to local memory region from remote.
