@@ -44,6 +44,7 @@ set(RDMAPP_SOURCE_FILES
   src/pd.cc
   src/cq.cc
   src/qp.cc
+  src/qp_light.cc
   src/srq.cc
   src/cq_poller.cc
   src/executor.cc

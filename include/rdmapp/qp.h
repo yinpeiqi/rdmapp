@@ -129,19 +129,31 @@ public:
   class light_send_awaitable {
     struct ibv_wc wc_;
     void *coroutine_addr_;
-    std::shared_ptr<qp> qp_;
-    std::shared_ptr<local_mr> local_mr_;
-    std::shared_ptr<remote_mr> remote_mr_;
+    qp* qp_;
+    local_mr* local_mr_;
+    remote_mr* remote_mr_;
     uint32_t imm_;
     size_t length_ = -1;
-    std::chrono::time_point<std::chrono::high_resolution_clock> st_;
 
    public:
-    light_send_awaitable(std::shared_ptr<qp> qp, size_t length, std::shared_ptr<local_mr> local_mr,
-                   std::shared_ptr<remote_mr> remote_mr, uint32_t imm);
+    light_send_awaitable(qp* qp, size_t length, local_mr* local_mr, remote_mr* remote_mr, uint32_t imm);
     bool await_ready() const noexcept;
     bool await_suspend(std::coroutine_handle<> h) noexcept;
     uint32_t await_resume() const;
+  };
+
+  class light_recv_awaitable {
+    struct ibv_wc wc_;
+    void *coroutine_addr_;
+    qp* qp_;
+    local_mr* local_mr_;
+    enum ibv_wr_opcode opcode_;
+
+   public:
+    light_recv_awaitable(qp* qp, local_mr* local_mr);
+    bool await_ready() const noexcept;
+    bool await_suspend(std::coroutine_handle<> h) noexcept;
+    std::pair<uint32_t, std::optional<uint32_t>> await_resume() const;
   };
 
   class recv_awaitable {
@@ -374,7 +386,7 @@ public:
                  uint32_t imm);
 
   [[nodiscard]] light_send_awaitable
-  write_with_imm(std::shared_ptr<remote_mr> remote_mr, std::shared_ptr<local_mr> local_mr,
+  write_with_imm(remote_mr* remote_mr, local_mr* local_mr,
                 size_t length, uint32_t imm);
 
   /**
@@ -429,6 +441,7 @@ public:
    * data, and second indicating the immediate value if any.
    */
   [[nodiscard]] recv_awaitable recv(std::shared_ptr<local_mr> local_mr);
+  [[nodiscard]] light_recv_awaitable recv(local_mr* local_mr);
 
   /**
    * @brief This function serializes a Queue Pair prepared to be sent to a

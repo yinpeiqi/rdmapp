@@ -26,18 +26,18 @@ cq_poller::~cq_poller() {
 }
 
 void cq_poller::worker() {
-  auto st = std::chrono::high_resolution_clock::now();
-  int tot = 0;
+  // auto st = std::chrono::high_resolution_clock::now();
+  // int tot = 0;
   while (!stopped_) {
     try {
       auto nr_wc = cq_->poll(wc_vec_);
-      tot++;
+      // tot++;
       if (nr_wc != 0) {
-        auto et = std::chrono::high_resolution_clock::now();
-        auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(et - st);
-        std::cout << nr_wc << " " << tot << " " << elapsed.count() << "\n";
-        tot = 0;
-        st = et;
+        // auto et = std::chrono::high_resolution_clock::now();
+        // auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(et - st);
+        // std::cout << nr_wc << " " << tot << " " << elapsed.count() << "\n";
+        // tot = 0;
+        // st = et;
         for (size_t i = 0; i < nr_wc; ++i) {
           auto &wc = wc_vec_[i];
           RDMAPP_LOG_TRACE("polled cqe wr_id=%p status=%d",
