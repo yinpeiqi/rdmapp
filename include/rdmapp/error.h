@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <cstring>
 #include <stdexcept>
+#include <iostream>
 
 #include <infiniband/verbs.h>
 
@@ -84,17 +85,20 @@ static inline void check_wc_status(enum ibv_wc_status status,
       }
       return "UNKNOWN_ERROR";
     }();
+    std::cout << "check_wc_status: " << message << std::endl;
     throw_with("%s: %s (status=%d)", message, errorstr, status);
   }
 }
 static inline void check_ptr(void *ptr, const char *message) {
   if (ptr == nullptr) [[unlikely]] {
+    std::cout << "check_ptr: " << message << std::endl;
     throw_with("%s: %s (errno=%d)", message, ::strerror(errno), errno);
   }
 }
 
 static inline void check_errno(int rc, const char *message) {
   if (rc < 0) [[unlikely]] {
+    std::cout << "check_errno: " << message << std::endl;
     throw_with("%s: %s (errno=%d)", message, ::strerror(errno), errno);
   }
 }

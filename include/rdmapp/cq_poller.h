@@ -19,10 +19,11 @@ namespace rdmapp {
 class cq_poller {
   std::shared_ptr<cq> cq_;
   std::atomic<bool> stopped_;
-  std::thread poller_thread_;
+  std::jthread poller_thread_;
   std::shared_ptr<executor> executor_;
   std::vector<struct ibv_wc> wc_vec_;
-  void worker();
+  void recv_worker();
+  void send_worker();
 
 public:
   /**
@@ -31,7 +32,7 @@ public:
    * @param cq The completion queue to poll.
    * @param batch_size The number of completion entries to poll at a time.
    */
-  cq_poller(std::shared_ptr<cq> cq, size_t batch_size = 16);
+  cq_poller(std::shared_ptr<cq> cq, bool is_recv = true, size_t batch_size = 16);
 
   /**
    * @brief Construct a new cq poller object.
@@ -40,7 +41,7 @@ public:
    * @param executor The executor to use to process the completion entries.
    * @param batch_size The number of completion entries to poll at a time.
    */
-  cq_poller(std::shared_ptr<cq> cq, std::shared_ptr<executor> executor,
+  cq_poller(std::shared_ptr<cq> cq, bool is_recv, std::shared_ptr<executor> executor,
             size_t batch_size = 16);
 
   ~cq_poller();

@@ -389,6 +389,10 @@ public:
   write_with_imm(remote_mr* remote_mr, local_mr* local_mr,
                 size_t length, uint32_t imm);
 
+  [[nodiscard]] void
+  write_with_imm_direct(remote_mr* remote_mr, local_mr* local_mr,
+                size_t length, uint32_t imm);
+
   /**
    * @brief This function reads to local memory region from remote.
    *

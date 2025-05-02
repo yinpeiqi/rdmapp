@@ -16,7 +16,7 @@ namespace rdmapp {
  */
 class executor {
   using work_queue = detail::blocking_queue<struct ibv_wc>;
-  std::vector<std::thread> workers_;
+  std::vector<std::jthread> workers_;
   work_queue work_queue_;
   void worker_fn(size_t worker_id);
 

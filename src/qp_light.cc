@@ -49,6 +49,30 @@ uint32_t qp::light_send_awaitable::await_resume() const {
 	return wc_.byte_len;
 }
 
+void qp::write_with_imm_direct(remote_mr* remote_mr, local_mr* local_mr, size_t length, uint32_t imm) {
+	if (length == -1) {
+		length = local_mr->length();
+	}
+	// fill_local_sge
+  struct ibv_sge send_sge = {};
+  send_sge.addr = reinterpret_cast<uint64_t>(local_mr->addr());
+  send_sge.length = length;
+  send_sge.lkey = local_mr->lkey();
+
+	struct ibv_send_wr send_wr = {};
+	struct ibv_send_wr *bad_send_wr = nullptr;
+	send_wr.opcode = IBV_WR_RDMA_WRITE_WITH_IMM;
+	send_wr.next = nullptr;
+	send_wr.num_sge = 1;
+	send_wr.send_flags = IBV_SEND_SIGNALED;
+	send_wr.sg_list = &send_sge;
+	assert(remote_mr->addr() != nullptr);
+	send_wr.wr.rdma.remote_addr = reinterpret_cast<uint64_t>(remote_mr->addr());
+	send_wr.wr.rdma.rkey = remote_mr->rkey();
+	send_wr.imm_data = imm;
+
+	this->post_send(send_wr, bad_send_wr);
+}
 
 qp::light_recv_awaitable qp::recv(local_mr* local_mr) {
   return qp::light_recv_awaitable(this, local_mr);

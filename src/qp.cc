@@ -185,9 +185,9 @@ void qp::rts() {
 
 void qp::post_send(struct ibv_send_wr const &send_wr,
                    struct ibv_send_wr *&bad_send_wr) {
-  RDMAPP_LOG_TRACE("post send wr_id=%p addr=%p",
-                   reinterpret_cast<void *>(send_wr.wr_id),
-                   reinterpret_cast<void *>(send_wr.sg_list->addr));
+  // RDMAPP_LOG_TRACE("post send wr_id=%p addr=%p",
+  //                  reinterpret_cast<void *>(send_wr.wr_id),
+  //                  reinterpret_cast<void *>(send_wr.sg_list->addr));
   check_rc(::ibv_post_send(qp_, const_cast<struct ibv_send_wr *>(&send_wr),
                            &bad_send_wr),
            "failed to post send");
@@ -200,9 +200,9 @@ void qp::post_recv(struct ibv_recv_wr const &recv_wr,
 
 void qp::post_recv_rq(struct ibv_recv_wr const &recv_wr,
                       struct ibv_recv_wr *&bad_recv_wr) const {
-  RDMAPP_LOG_TRACE("post recv wr_id=%p addr=%p",
-                   reinterpret_cast<void *>(recv_wr.wr_id),
-                   reinterpret_cast<void *>(recv_wr.sg_list->addr));
+  // RDMAPP_LOG_TRACE("post recv wr_id=%p addr=%p",
+  //                  reinterpret_cast<void *>(recv_wr.wr_id),
+  //                  reinterpret_cast<void *>(recv_wr.sg_list->addr));
   check_rc(::ibv_post_recv(qp_, const_cast<struct ibv_recv_wr *>(&recv_wr),
                            &bad_recv_wr),
            "failed to post recv");
