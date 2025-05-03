@@ -38,7 +38,7 @@ public:
    * Pairs.
    */
   acceptor(std::shared_ptr<socket::event_loop> loop, uint16_t port,
-           std::shared_ptr<pd> pd, std::shared_ptr<cq> cq,
+           std::shared_ptr<pd> pd, std::shared_ptr<cq> cq = nullptr,
            std::shared_ptr<srq> srq = nullptr);
 
   /**
@@ -69,7 +69,7 @@ public:
    */
   acceptor(std::shared_ptr<socket::event_loop> loop,
            std::string const &hostname, uint16_t port, std::shared_ptr<pd> pd,
-           std::shared_ptr<cq> cq, std::shared_ptr<srq> srq = nullptr);
+           std::shared_ptr<cq> cq = nullptr, std::shared_ptr<srq> srq = nullptr);
 
   /**
    * @brief Construct a new acceptor object.
@@ -96,6 +96,7 @@ public:
    * pointer to the new queue pair. It will be in the RTS state.
    */
   task<std::shared_ptr<qp>> accept();
+  task<std::shared_ptr<qp>> accept(std::shared_ptr<cq> recv_cq, std::shared_ptr<cq> send_cq);
   ~acceptor();
 };
 

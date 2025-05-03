@@ -53,11 +53,7 @@ void cq_poller::recv_worker() {
         }
         st2 = std::chrono::high_resolution_clock::now();
       }
-    } catch (std::runtime_error &e) {
-      RDMAPP_LOG_ERROR("%s", e.what());
-      stopped_ = true;
-      return;
-    } catch (executor::queue_closed_error &) {
+    } catch (...) {
       stopped_ = true;
       return;
     }
@@ -80,11 +76,7 @@ void cq_poller::send_worker() {
           executor_->process_wc(wc);
         }
       }
-    } catch (std::runtime_error &e) {
-      RDMAPP_LOG_ERROR("%s", e.what());
-      stopped_ = true;
-      return;
-    } catch (executor::queue_closed_error &) {
+    } catch (...) {
       stopped_ = true;
       return;
     }

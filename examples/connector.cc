@@ -54,4 +54,12 @@ task<std::shared_ptr<qp>> connector::connect() {
   co_return qp;
 }
 
+task<std::shared_ptr<qp>> connector::connect(std::shared_ptr<cq> recv_cq, std::shared_ptr<cq> send_cq) {
+  auto connection =
+      co_await rdmapp::socket::tcp_connection::connect(loop_, hostname_, port_);
+  auto qp =
+      co_await from_tcp_connection(*connection, pd_, recv_cq, send_cq, srq_);
+  co_return qp;
+}
+
 } // namespace rdmapp

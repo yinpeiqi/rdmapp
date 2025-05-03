@@ -60,6 +60,18 @@ task<std::shared_ptr<qp>> acceptor::accept() {
   co_return local_qp;
 }
 
+task<std::shared_ptr<qp>> acceptor::accept(std::shared_ptr<cq> recv_cq, std::shared_ptr<cq> send_cq) {
+  auto channel = co_await listener_->accept();
+  auto connection = socket::tcp_connection(channel);
+  auto remote_qp = co_await recv_qp(connection);
+  auto local_qp = std::make_shared<qp>(
+      remote_qp.header.lid, remote_qp.header.qp_num, remote_qp.header.sq_psn,
+      remote_qp.header.gid, pd_, recv_cq, send_cq);
+  local_qp->user_data() = std::move(remote_qp.user_data);
+  co_await send_qp(*local_qp, connection);
+  co_return local_qp;
+}
+
 acceptor::~acceptor() {}
 
 } // namespace rdmapp

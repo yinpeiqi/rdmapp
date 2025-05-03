@@ -7,6 +7,7 @@
 #include <infiniband/verbs.h>
 
 #include "rdmapp/detail/blocking_queue.h"
+#include "rdmapp/detail/concurrent_queue.h"
 
 namespace rdmapp {
 
@@ -15,13 +16,16 @@ namespace rdmapp {
  *
  */
 class executor {
-  using work_queue = detail::blocking_queue<struct ibv_wc>;
+  using work_queue = detail::ConcurrentQueue<struct ibv_wc>;
   std::vector<std::jthread> workers_;
-  work_queue work_queue_;
+  std::shared_ptr<work_queue> work_queue_;
   void worker_fn(size_t worker_id);
 
 public:
-  using queue_closed_error = work_queue::queue_closed_error;
+  class closed_exception : public std::runtime_error {
+  public:
+    closed_exception() : std::runtime_error("Queue is closed") {}
+  };
   using callback_fn = std::function<void(struct ibv_wc const &wc)>;
   using callback_ptr = callback_fn *;
 

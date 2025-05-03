@@ -53,7 +53,7 @@ public:
    */
   connector(std::shared_ptr<socket::event_loop> loop,
             std::string const &hostname, uint16_t port, std::shared_ptr<pd> pd,
-            std::shared_ptr<cq> cq, std::shared_ptr<srq> srq = nullptr);
+            std::shared_ptr<cq> cq = nullptr, std::shared_ptr<srq> srq = nullptr);
 
   /**
    * @brief This function is used to connect to a remote endpoint and establish
@@ -62,6 +62,7 @@ public:
    * @return task<std::shared_ptr<qp>>
    */
   task<std::shared_ptr<qp>> connect();
+  task<std::shared_ptr<qp>> connect(std::shared_ptr<cq> recv_cq, std::shared_ptr<cq> send_cq);
 };
 
 } // namespace rdmapp
