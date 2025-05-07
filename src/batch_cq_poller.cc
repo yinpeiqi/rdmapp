@@ -73,7 +73,7 @@ void batch_cq_poller::recv_worker() {
           auto et = std::chrono::high_resolution_clock::now();
           auto elapsed1 = std::chrono::duration_cast<std::chrono::nanoseconds>(st2 - st);
           auto elapsed2 = std::chrono::duration_cast<std::chrono::nanoseconds>(et - st2);
-          std::cout << nr_wc << " " << tot << " " << elapsed1.count() << " " << elapsed2.count() << "\n";
+          // std::cout << nr_wc << " " << tot << " " << elapsed1.count() << " " << elapsed2.count() << "\n";
           tot = 0;
           st = et;
           for (size_t i = 0; i < nr_wc; ++i) {
@@ -84,6 +84,7 @@ void batch_cq_poller::recv_worker() {
         }
       }
     } catch (...) {
+      std::cout << "recv cq_poller stopped" << std::endl;
       stopped_ = true;
       return;
     }
@@ -96,9 +97,10 @@ void batch_cq_poller::send_worker() {
     try {
       for (auto &cq_ : cqs_) {
         auto nr_wc = cq_->poll(wc_vec_);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        // std::this_thread::sleep_for(std::chrono::milliseconds(1));
       }
     } catch (...) {
+      std::cout << "send cq_poller stopped" << std::endl;
       stopped_ = true;
       return;
     }

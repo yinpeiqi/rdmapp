@@ -24,6 +24,7 @@ void executor::worker_fn(size_t worker_id) {
         if (work_queue_->is_closed()) [[unlikely]] {
           throw closed_exception();
         }
+        std::this_thread::yield();
       }
       struct ibv_wc *wc_ptr = reinterpret_cast<struct ibv_wc *>(wc.wr_id);
       *wc_ptr = wc;
@@ -36,13 +37,14 @@ void executor::worker_fn(size_t worker_id) {
       // std::cout << "process_wc " << elapsed.count() << " ns\n";
     }
   } catch (...) {
-    RDMAPP_LOG_TRACE("executor worker %lu exited", worker_id);
+    RDMAPP_LOG_DEBUG("executor worker %lu exited", worker_id);
   }
 }
 
 void executor::process_wc(struct ibv_wc const &wc) {
   while (!work_queue_->push(wc)) {
     if (work_queue_->is_closed()) [[unlikely]] {
+      std::cout << "work queue closed" << std::endl;
       throw closed_exception();
     }
   }

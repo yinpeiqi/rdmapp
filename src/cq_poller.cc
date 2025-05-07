@@ -54,6 +54,7 @@ void cq_poller::recv_worker() {
         st2 = std::chrono::high_resolution_clock::now();
       }
     } catch (...) {
+      std::cout << "recv cq_poller stopped" << std::endl;
       stopped_ = true;
       return;
     }
@@ -77,6 +78,7 @@ void cq_poller::send_worker() {
         }
       }
     } catch (...) {
+      std::cout << "send cq_poller stopped" << std::endl;
       stopped_ = true;
       return;
     }
