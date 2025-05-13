@@ -17,19 +17,16 @@ executor::executor(size_t nr_worker) {
 }
 
 void executor::worker_fn(size_t worker_id) {
-  struct ibv_wc wc;
+  void* h_ptr;
   try {
     while (true) {
-      while (!work_queue_->pop(wc)) {
+      while (!work_queue_->pop(h_ptr)) {
         if (work_queue_->is_closed()) [[unlikely]] {
           throw closed_exception();
         }
         std::this_thread::yield();
       }
-      struct ibv_wc *wc_ptr = reinterpret_cast<struct ibv_wc *>(wc.wr_id);
-      *wc_ptr = wc;
-      std::coroutine_handle<> h = std::coroutine_handle<>::from_address(
-          *reinterpret_cast<void **>(wc_ptr + 1));
+      std::coroutine_handle<> h = std::coroutine_handle<>::from_address(h_ptr);
       // auto st = std::chrono::high_resolution_clock::now();
       h.resume();
       // auto et = std::chrono::high_resolution_clock::now();
@@ -41,8 +38,8 @@ void executor::worker_fn(size_t worker_id) {
   }
 }
 
-void executor::process_wc(struct ibv_wc const &wc) {
-  while (!work_queue_->push(wc)) {
+void executor::process_wc(void* h_ptr) {
+  while (!work_queue_->push(h_ptr)) {
     if (work_queue_->is_closed()) [[unlikely]] {
       std::cout << "work queue closed" << std::endl;
       throw closed_exception();

@@ -16,7 +16,7 @@ namespace rdmapp {
  *
  */
 class executor {
-  using work_queue = detail::ConcurrentQueue<struct ibv_wc>;
+  using work_queue = detail::ConcurrentQueue<void*>;
   std::vector<std::jthread> workers_;
   std::shared_ptr<work_queue> work_queue_;
   void worker_fn(size_t worker_id);
@@ -26,7 +26,7 @@ public:
   public:
     closed_exception() : std::runtime_error("Queue is closed") {}
   };
-  using callback_fn = std::function<void(struct ibv_wc const &wc)>;
+  using callback_fn = std::function<void(void* h_ptr)>;
   using callback_ptr = callback_fn *;
 
   /**
@@ -41,7 +41,7 @@ public:
    *
    * @param wc The completion entry to process.
    */
-  void process_wc(struct ibv_wc const &wc);
+  void process_wc(void* h_ptr);
 
   /**
    * @brief Shutdown the executor.

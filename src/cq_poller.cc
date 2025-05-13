@@ -48,8 +48,10 @@ void cq_poller::recv_worker() {
         st = et;
         for (size_t i = 0; i < nr_wc; ++i) {
           auto &wc = wc_vec_[i];
-          // RDMAPP_LOG_TRACE("polled cqe wr_id=%p status=%d", reinterpret_cast<void *>(wc.wr_id), wc.status);
-          executor_->process_wc(wc);
+          struct ibv_wc *wc_ptr = reinterpret_cast<struct ibv_wc *>(wc.wr_id);
+          *wc_ptr = wc;
+          auto h_ptr = *reinterpret_cast<void **>(wc_ptr + 1);
+          executor_->process_wc(h_ptr);
         }
         st2 = std::chrono::high_resolution_clock::now();
       }
@@ -74,7 +76,10 @@ void cq_poller::send_worker() {
             continue;
           }
           // only process "send"
-          executor_->process_wc(wc);
+          struct ibv_wc *wc_ptr = reinterpret_cast<struct ibv_wc *>(wc.wr_id);
+          *wc_ptr = wc;
+          auto h_ptr = *reinterpret_cast<void **>(wc_ptr + 1);
+          executor_->process_wc(h_ptr);
         }
       }
     } catch (...) {

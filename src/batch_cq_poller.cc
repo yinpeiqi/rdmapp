@@ -73,12 +73,15 @@ void batch_cq_poller::recv_worker() {
           auto et = std::chrono::high_resolution_clock::now();
           auto elapsed1 = std::chrono::duration_cast<std::chrono::nanoseconds>(st2 - st);
           auto elapsed2 = std::chrono::duration_cast<std::chrono::nanoseconds>(et - st2);
-          // std::cout << nr_wc << " " << tot << " " << elapsed1.count() << " " << elapsed2.count() << "\n";
+          std::cout << nr_wc << " " << tot << " " << elapsed1.count() << " " << elapsed2.count() << "\n";
           tot = 0;
           st = et;
           for (size_t i = 0; i < nr_wc; ++i) {
             auto &wc = wc_vec_[i];
-            executor_->process_wc(wc);
+            struct ibv_wc *wc_ptr = reinterpret_cast<struct ibv_wc *>(wc.wr_id);
+            *wc_ptr = wc;
+            auto h_ptr = *reinterpret_cast<void **>(wc_ptr + 1);
+            executor_->process_wc(h_ptr);
           }
           st2 = std::chrono::high_resolution_clock::now();
         }
@@ -97,7 +100,6 @@ void batch_cq_poller::send_worker() {
     try {
       for (auto &cq_ : cqs_) {
         auto nr_wc = cq_->poll(wc_vec_);
-        // std::this_thread::sleep_for(std::chrono::milliseconds(1));
       }
     } catch (...) {
       std::cout << "send cq_poller stopped" << std::endl;
