@@ -23,6 +23,12 @@ class ConcurrentQueue {
   ConcurrentQueue(const ConcurrentQueue&) = delete;
   ConcurrentQueue& operator=(const ConcurrentQueue&) = delete;
 
+  void reset() noexcept {
+    head_.store(0);
+    tail_.store(0);
+    is_closed_.store(false);
+  }
+
   void close() noexcept {
     is_closed_.store(true, std::memory_order_release);
   }
